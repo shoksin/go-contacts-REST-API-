@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-contacts/models"
 	u "go-contacts/utils"
 	"net/http"
@@ -36,7 +35,6 @@ var CreateContact = func(w http.ResponseWriter, r *http.Request) {
 
 var GetContactsFor = func(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
-	fmt.Println(tokenHeader)
 	if tokenHeader == "" {
 		response := u.Message(false, "User is unauthorized")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -54,7 +52,6 @@ var GetContactsFor = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tokenPart := splitted[1]
-	fmt.Println(tokenPart)
 	tk := &models.Token{}
 
 	token, err := jwt.ParseWithClaims(tokenPart, tk, func(token *jwt.Token) (interface{}, error) {
