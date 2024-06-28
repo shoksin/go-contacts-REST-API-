@@ -2,12 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"go-contacts/models"
 	u "go-contacts/utils"
 	"net/http"
-	"strconv"
+	"os"
+	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/dgrijalva/jwt-go"
 )
 
 var CreateContact = func(w http.ResponseWriter, r *http.Request) {
@@ -33,14 +35,48 @@ var CreateContact = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var GetContactsFor = func(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id, err := strconv.Atoi(params["id"])
-	if err != nil {
-		//Переданный параметр пути не является целым числом
-		u.Respond(w, u.Message(false, "There was an error in your request"))
+	tokenHeader := r.Header.Get("Authorization")
+	fmt.Println(tokenHeader)
+	if tokenHeader == "" {
+		response := u.Message(false, "User is unauthorized")
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Header().Add("Content-Type", "application/json")
+		u.Respond(w, response)
+		return
+	}
+	splitted := strings.Split(tokenHeader, " ")
+	if len(splitted) != 2 {
+		response := u.Message(false, "Invalid auth token")
+		w.WriteHeader(http.StatusForbidden)
+		w.Header().Add("Content-Type", "application/json")
+		u.Respond(w, response)
+		return
 	}
 
-	data := models.GetContacts(uint(id))
+	tokenPart := splitted[1]
+	fmt.Println(tokenPart)
+	tk := &models.Token{}
+
+	token, err := jwt.ParseWithClaims(tokenPart, tk, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("token_password")), nil
+	})
+	if err != nil {
+		response := u.Message(false, "Token is not valid")
+		w.WriteHeader(http.StatusForbidden)
+		w.Header().Add("Content-Type", "application/json")
+		u.Respond(w, response)
+		return
+	}
+
+	if !token.Valid {
+		response := u.Message(false, "Token is not valid")
+		w.WriteHeader(http.StatusForbidden)
+		w.Header().Add("Content-Type", "application/json")
+		u.Respond(w, response)
+		return
+	}
+
+	data := models.GetContacts(tk.UserId)
 	resp := u.Message(true, "success")
 	resp["data"] = data
 	u.Respond(w, resp)

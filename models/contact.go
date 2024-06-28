@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	u "go-contacts/utils"
 
 	"github.com/jinzhu/gorm"
@@ -52,7 +51,6 @@ func GetContact(id uint) *Contact {
 
 func GetContacts(id uint) []*Contact {
 	contacts := make([]*Contact, 0)
-	fmt.Println("contacts =", contacts)
 	//err := GetDB().Table("contacts").Where("user_id = ?", id).Find(&contacts).Error
 	err := GetDB().Table("contacts").Where("user_id = ?", id).Find(&contacts).Error
 	if err != nil {
