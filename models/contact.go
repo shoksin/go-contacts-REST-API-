@@ -51,10 +51,26 @@ func GetContact(id uint) *Contact {
 
 func GetContacts(id uint) []*Contact {
 	contacts := make([]*Contact, 0)
-	//err := GetDB().Table("contacts").Where("user_id = ?", id).Find(&contacts).Error
 	err := GetDB().Table("contacts").Where("user_id = ?", id).Find(&contacts).Error
 	if err != nil {
 		return nil
 	}
 	return contacts
+}
+
+func DeleteContact(id uint, phone string) map[string]interface{} {
+	err := GetDB().Table("contacts").Where("user_id = ? AND phone = ?", id, phone).Delete(&Contact{}).Error
+	if err != nil {
+		return u.Message(false, "deletion error")
+	}
+
+	return u.Message(true, "The contact was successfully deleted")
+}
+
+func DeleteContacts(id uint) map[string]interface{} {
+	err := GetDB().Table("contacts").Where("user_id = ?", id).Delete(&Contact{}).Error
+	if err != nil {
+		return u.Message(false, "deletion error")
+	}
+	return u.Message(true, "All contacts were deleted")
 }

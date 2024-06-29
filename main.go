@@ -19,6 +19,8 @@ func main() {
 	router.HandleFunc("/api/contacts/new", controllers.CreateContact).Methods("POST")
 	//router.HandleFunc("/api/user/{id}/contacts", controllers.GetContactsFor).Methods("GET") //  user/2/contacts
 	router.HandleFunc("/api/contacts", controllers.GetContactsFor).Methods("GET")
+	router.HandleFunc("/api/contacts/dalete/{id}", controllers.DeleteContact).Methods("DELETE")
+	router.HandleFunc("/api/contacts/detele", controllers.DeleteAllContacts).Methods("DELETE")
 
 	router.Use(app.JWTAuthentication)
 

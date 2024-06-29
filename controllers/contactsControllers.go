@@ -11,58 +11,34 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-var CreateContact = func(w http.ResponseWriter, r *http.Request) {
-
-	// user, ok := r.Context().Value("user_id").(uint)
-	// if !ok {
-	// 	fmt.Println("User ============================", user)
-	// 	u.Respond(w, u.Message(false, "Invalid user_id in the context"))
-	// 	return
-	// }
-
-	contact := &models.Contact{}
-
-	err := json.NewDecoder(r.Body).Decode(contact)
-	if err != nil {
-		u.Respond(w, u.Message(false, "Error while decoding request body"))
-	}
-
-	//contact.UserID = user
-	resp := contact.Create()
-	u.Respond(w, resp)
-
-}
-
-var GetContactsFor = func(w http.ResponseWriter, r *http.Request) {
+func GetToken(w http.ResponseWriter, r *http.Request) *models.Token {
 	tokenHeader := r.Header.Get("Authorization")
 	if tokenHeader == "" {
-		response := u.Message(false, "User is unauthorized")
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Header().Add("Content-Type", "application/json")
-		u.Respond(w, response)
-		return
-	}
-	splitted := strings.Split(tokenHeader, " ")
-	if len(splitted) != 2 {
-		response := u.Message(false, "Invalid auth token")
 		w.WriteHeader(http.StatusForbidden)
 		w.Header().Add("Content-Type", "application/json")
-		u.Respond(w, response)
-		return
+		u.Respond(w, u.Message(false, "User is unauthorized"))
+		return nil
 	}
 
-	tokenPart := splitted[1]
+	splitted := strings.Split(tokenHeader, " ")
+	if len(splitted) != 2 {
+		w.WriteHeader(http.StatusForbidden)
+		w.Header().Add("Content-Type", "application/json")
+		u.Respond(w, u.Message(false, "Invalid auth token"))
+		return nil
+	}
+
+	tokedPart := splitted[1]
 	tk := &models.Token{}
 
-	token, err := jwt.ParseWithClaims(tokenPart, tk, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokedPart, tk, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("token_password")), nil
 	})
 	if err != nil {
-		response := u.Message(false, "Token is not valid")
 		w.WriteHeader(http.StatusForbidden)
 		w.Header().Add("Content-Type", "application/json")
-		u.Respond(w, response)
-		return
+		u.Respond(w, u.Message(false, "Token is not valid!"))
+		return nil
 	}
 
 	if !token.Valid {
@@ -70,10 +46,27 @@ var GetContactsFor = func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 		w.Header().Add("Content-Type", "application/json")
 		u.Respond(w, response)
-		return
+		return nil
 	}
 
-	data := models.GetContacts(tk.UserId)
+	return tk
+}
+
+var CreateContact = func(w http.ResponseWriter, r *http.Request) {
+	contact := &models.Contact{}
+
+	err := json.NewDecoder(r.Body).Decode(contact)
+	if err != nil {
+		u.Respond(w, u.Message(false, "Error while decoding request body"))
+	}
+	contact.UserID = GetToken(w, r).UserId
+	resp := contact.Create()
+	u.Respond(w, resp)
+
+}
+
+var GetContactsFor = func(w http.ResponseWriter, r *http.Request) {
+	data := models.GetContacts(GetToken(w, r).UserId)
 	resp := u.Message(true, "success")
 	resp["data"] = data
 	u.Respond(w, resp)
