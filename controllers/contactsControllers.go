@@ -6,9 +6,11 @@ import (
 	u "go-contacts/utils"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/mux"
 )
 
 func GetToken(w http.ResponseWriter, r *http.Request) *models.Token {
@@ -54,7 +56,6 @@ func GetToken(w http.ResponseWriter, r *http.Request) *models.Token {
 
 var CreateContact = func(w http.ResponseWriter, r *http.Request) {
 	contact := &models.Contact{}
-
 	err := json.NewDecoder(r.Body).Decode(contact)
 	if err != nil {
 		u.Respond(w, u.Message(false, "Error while decoding request body"))
@@ -71,4 +72,40 @@ var GetContactsFor = func(w http.ResponseWriter, r *http.Request) {
 	resp["data"] = data
 	u.Respond(w, resp)
 
+}
+
+var DeleteUserContact = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	nameStr := vars["name"]
+	data := models.DeleteContact(GetToken(w, r).UserId, nameStr)
+	resp := u.Message(true, "success")
+	resp["data"] = data
+	u.Respond(w, resp)
+
+}
+
+var DeleteAllUserContacts = func(w http.ResponseWriter, r *http.Request) {
+	data := models.DeleteContacts(GetToken(w, r).UserId)
+	resp := u.Message(true, "success")
+	resp["data"] = data
+	u.Respond(w, resp)
+}
+
+var UpdateUserContacts = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	contactIDString := vars["contact_id"]
+	contactID, err := strconv.Atoi(contactIDString)
+	if err != nil {
+		u.Respond(w, u.Message(false, "Wrong contactID"))
+	}
+
+	contact := &models.Contact{}
+	err = json.NewDecoder(r.Body).Decode(contact)
+	if err != nil {
+		u.Respond(w, u.Message(false, "Error while decoding request body"))
+	}
+	data := models.UpdateContact(GetToken(w, r).UserId, uint(contactID), contact)
+	resp := u.Message(true, "success")
+	resp["data"] = data
+	u.Respond(w, resp)
 }

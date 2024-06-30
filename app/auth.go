@@ -25,25 +25,21 @@ var JWTAuthentication = func(next http.Handler) http.Handler {
 			}
 		}
 
-		response := make(map[string]interface{})
 		tokenHeader := r.Header.Get("Authorization")
 
 		if tokenHeader == "" { //токен пустой. Возвращаем (403)("UnAuthorized")
-			response = u.Message(false, "Missing auth token")
 			w.WriteHeader(http.StatusForbidden)                //доступ запрещён
 			w.Header().Add("Content-Type", "application/json") //устанавливает заголовок ответа "Content-Type" со значением "application/json".
 			//четко сообщает клиенту, что ответ содержит данные в формате JSON.
-			u.Respond(w, response)
+			u.Respond(w, u.Message(false, "Missing auth token"))
 			return
 		}
 
 		splitted := strings.Split(tokenHeader, " ")
-		//fmt.Print(splitted)
 		if len(splitted) != 2 {
-			response = u.Message(false, "Invalid auth token")
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
-			u.Respond(w, response)
+			u.Respond(w, u.Message(false, "Invalid auth token"))
 			return
 		}
 
@@ -55,18 +51,16 @@ var JWTAuthentication = func(next http.Handler) http.Handler {
 		})
 
 		if err != nil { //Неправильный токен, как правило, возвращает 403 http-код
-			response = u.Message(false, "Token is not valid")
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
-			u.Respond(w, response)
+			u.Respond(w, u.Message(false, "Token is not valid"))
 			return
 		}
 
 		if !token.Valid { //токен недействителен, возможно, не подписан на этом сервере
-			response = u.Message(false, "Token is not valid")
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
-			u.Respond(w, response)
+			u.Respond(w, u.Message(false, "Token is not valid"))
 			return
 		}
 
