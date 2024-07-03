@@ -109,3 +109,22 @@ var UpdateUserContacts = func(w http.ResponseWriter, r *http.Request) {
 	resp["data"] = data
 	u.Respond(w, resp)
 }
+
+var PatchUserContacts = func(w http.ResponseWriter, r *http.Request) {
+	contactIDString := mux.Vars(r)["contact_id"]
+	contactID, err := strconv.Atoi(contactIDString)
+	if err != nil {
+		u.Respond(w, u.Message(false, "Wrong contactID"))
+	}
+
+	contact := &models.Contact{}
+	err = json.NewDecoder(r.Body).Decode(contact)
+	if err != nil {
+		u.Respond(w, u.Message(false, "Error while decoding request body:"))
+	}
+
+	data := models.PatchContact(GetToken(w, r).UserId, uint(contactID), contact)
+	resp := u.Message(true, "success")
+	resp["data"] = data
+	u.Respond(w, resp)
+}

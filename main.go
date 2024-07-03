@@ -21,6 +21,7 @@ func main() {
 	router.HandleFunc("/api/contacts/dalete/{name}", controllers.DeleteUserContact).Methods("DELETE")
 	router.HandleFunc("/api/contacts/delete", controllers.DeleteAllUserContacts).Methods("DELETE")
 	router.HandleFunc("/api/contacts/update/{contact_id}", controllers.UpdateUserContacts).Methods("PUT")
+	router.HandleFunc("/api/contacts/update/{contact_id}", controllers.PatchUserContacts).Methods("PATCH")
 
 	port := os.Getenv("PORT")
 	if port == "" {

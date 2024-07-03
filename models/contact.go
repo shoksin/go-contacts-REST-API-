@@ -91,3 +91,25 @@ func UpdateContact(user_id uint, contact_id uint, cont *Contact) map[string]inte
 	}
 	return u.Message(true, "contact updated successfully")
 }
+
+func PatchContact(user_id uint, contact_id uint, cont *Contact) map[string]interface{} {
+	contact := &Contact{}
+	err := GetDB().Table("contacts").Where("id = ? AND user_id = ?", contact_id, user_id).First(&contact).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return u.Message(false, "Contact not found")
+		}
+		return u.Message(false, "update error")
+	}
+	if cont.Name != "" {
+		contact.Name = cont.Name
+	}
+	if cont.Phone != "" {
+		contact.Phone = cont.Phone
+	}
+
+	if err := GetDB().Save(&contact).Error; err != nil {
+		return u.Message(false, "update error")
+	}
+	return u.Message(true, "success")
+}
