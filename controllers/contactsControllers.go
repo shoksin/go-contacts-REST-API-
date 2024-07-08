@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"go-contacts/models"
+	"go-contacts/pkg/logging"
 	u "go-contacts/utils"
 	"net/http"
 	"os"
@@ -16,6 +17,7 @@ import (
 func GetToken(w http.ResponseWriter, r *http.Request) *models.Token {
 	tokenHeader := r.Header.Get("Authorization")
 	if tokenHeader == "" {
+		logging.GetLogger().Error("Couldn't get token header.")
 		w.WriteHeader(http.StatusForbidden)
 		w.Header().Add("Content-Type", "application/json")
 		u.Respond(w, u.Message(false, "User is unauthorized"))
@@ -24,6 +26,7 @@ func GetToken(w http.ResponseWriter, r *http.Request) *models.Token {
 
 	splitted := strings.Split(tokenHeader, " ")
 	if len(splitted) != 2 {
+		logging.GetLogger().Error("The token does not consist of two parts.")
 		w.WriteHeader(http.StatusForbidden)
 		w.Header().Add("Content-Type", "application/json")
 		u.Respond(w, u.Message(false, "Invalid auth token"))
@@ -37,6 +40,7 @@ func GetToken(w http.ResponseWriter, r *http.Request) *models.Token {
 		return []byte(os.Getenv("token_password")), nil
 	})
 	if err != nil {
+		logging.GetLogger().Error("Couldn't parse JWT.")
 		w.WriteHeader(http.StatusForbidden)
 		w.Header().Add("Content-Type", "application/json")
 		u.Respond(w, u.Message(false, "Token is not valid!"))
@@ -44,6 +48,7 @@ func GetToken(w http.ResponseWriter, r *http.Request) *models.Token {
 	}
 
 	if !token.Valid {
+		logging.GetLogger().Info("Token isn't valid")
 		response := u.Message(false, "Token is not valid")
 		w.WriteHeader(http.StatusForbidden)
 		w.Header().Add("Content-Type", "application/json")
@@ -58,12 +63,12 @@ var CreateContact = func(w http.ResponseWriter, r *http.Request) {
 	contact := &models.Contact{}
 	err := json.NewDecoder(r.Body).Decode(contact)
 	if err != nil {
+		logging.GetLogger().Errorf("the request body could not be decoded")
 		u.Respond(w, u.Message(false, "Error while decoding request body"))
 	}
 	contact.UserID = GetToken(w, r).UserId
 	resp := contact.Create()
 	u.Respond(w, resp)
-
 }
 
 var GetContactsFor = func(w http.ResponseWriter, r *http.Request) {
@@ -96,12 +101,14 @@ var UpdateUserContacts = func(w http.ResponseWriter, r *http.Request) {
 	contactIDString := vars["contact_id"]
 	contactID, err := strconv.Atoi(contactIDString)
 	if err != nil {
+		logging.GetLogger().Error("Couldn't convert concactID(string) to integer")
 		u.Respond(w, u.Message(false, "Wrong contactID"))
 	}
 
 	contact := &models.Contact{}
 	err = json.NewDecoder(r.Body).Decode(contact)
 	if err != nil {
+		logging.GetLogger().Error("the request body could not be decoded")
 		u.Respond(w, u.Message(false, "Error while decoding request body"))
 	}
 	data := models.UpdateContact(GetToken(w, r).UserId, uint(contactID), contact)
@@ -114,12 +121,14 @@ var PatchUserContacts = func(w http.ResponseWriter, r *http.Request) {
 	contactIDString := mux.Vars(r)["contact_id"]
 	contactID, err := strconv.Atoi(contactIDString)
 	if err != nil {
+		logging.GetLogger().Error("Couldn't convert concactID(string) to integer")
 		u.Respond(w, u.Message(false, "Wrong contactID"))
 	}
 
 	contact := &models.Contact{}
 	err = json.NewDecoder(r.Body).Decode(contact)
 	if err != nil {
+		logging.GetLogger().Error("the request body could not be decoded")
 		u.Respond(w, u.Message(false, "Error while decoding request body:"))
 	}
 

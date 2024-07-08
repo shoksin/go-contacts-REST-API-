@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"go-contacts/pkg/logging"
 	"os"
 
 	"github.com/jinzhu/gorm"
@@ -26,7 +27,7 @@ func init() {
 
 	conn, err := gorm.Open("postgres", dbUri)
 	if err != nil {
-		fmt.Print(err)
+		logging.GetLogger().Fatal("couldn't open the database")
 	}
 
 	db = conn
