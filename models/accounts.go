@@ -1,9 +1,10 @@
 package models
 
 import (
-	u "go-contacts/utils"
 	"os"
 	"strings"
+
+	u "github.com/shoksin/go-contacts-REST-API-/utils"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"

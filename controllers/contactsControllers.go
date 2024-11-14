@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
-	"go-contacts/models"
-	"go-contacts/pkg/logging"
-	u "go-contacts/utils"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/shoksin/go-contacts-REST-API-/models"
+	"github.com/shoksin/go-contacts-REST-API-/pkg/logging"
+	u "github.com/shoksin/go-contacts-REST-API-/utils"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"

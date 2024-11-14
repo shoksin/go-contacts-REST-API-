@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
-	"go-contacts/models"
-	"go-contacts/pkg/logging"
-	u "go-contacts/utils"
 	"net/http"
+
+	"github.com/shoksin/go-contacts-REST-API-/models"
+	"github.com/shoksin/go-contacts-REST-API-/pkg/logging"
+	u "github.com/shoksin/go-contacts-REST-API-/utils"
 )
 
 var CreateAccount = func(w http.ResponseWriter, r *http.Request) {

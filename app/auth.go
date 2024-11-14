@@ -2,12 +2,12 @@ package app
 
 import (
 	"context"
-	//"fmt"
-	"go-contacts/models"
-	u "go-contacts/utils"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/shoksin/go-contacts-REST-API-/models"
+	u "github.com/shoksin/go-contacts-REST-API-/utils"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -30,7 +30,7 @@ var JWTAuthentication = func(next http.Handler) http.Handler {
 		if tokenHeader == "" { //токен пустой. Возвращаем (403)("UnAuthorized")
 			w.WriteHeader(http.StatusForbidden)                //доступ запрещён
 			w.Header().Add("Content-Type", "application/json") //устанавливает заголовок ответа "Content-Type" со значением "application/json".
-			//четко сообщает клиенту, что ответ содержит данные в формате JSON.
+			//сообщает клиенту, что ответ содержит данные в формате JSON.
 			u.Respond(w, u.Message(false, "Missing auth token"))
 			return
 		}

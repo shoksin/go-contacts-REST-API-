@@ -1,8 +1,8 @@
 package models
 
 import (
-	"go-contacts/pkg/logging"
-	u "go-contacts/utils"
+	"github.com/shoksin/go-contacts-REST-API-/pkg/logging"
+	u "github.com/shoksin/go-contacts-REST-API-/utils"
 
 	"github.com/jinzhu/gorm"
 )

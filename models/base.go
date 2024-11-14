@@ -2,8 +2,9 @@ package models
 
 import (
 	"fmt"
-	"go-contacts/pkg/logging"
 	"os"
+
+	"github.com/shoksin/go-contacts-REST-API-/pkg/logging"
 
 	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
@@ -22,6 +23,8 @@ func init() {
 	password := os.Getenv("db_password")
 	dbName := os.Getenv("db_name")
 	dbHost := os.Getenv("db_host")
+
+	fmt.Printf("host=%s user=%s dbname=%s sslmode=disable password=%s\n\n", dbHost, username, dbName, password)
 
 	dbUri := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, username, dbName, password)
 

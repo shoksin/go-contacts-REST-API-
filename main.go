@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	app "go-contacts/app"
-	"go-contacts/controllers"
-	"go-contacts/pkg/logging"
 	"net/http"
 	"os"
+
+	app "github.com/shoksin/go-contacts-REST-API-/app"
+	"github.com/shoksin/go-contacts-REST-API-/controllers"
+	"github.com/shoksin/go-contacts-REST-API-/pkg/logging"
 
 	"github.com/gorilla/mux"
 )
@@ -16,7 +17,7 @@ func main() {
 
 	logger.Info("create router")
 	router := mux.NewRouter()
-	router.Use(app.JWTAuthentication) //добавляем middleware проверки JWT-токена
+	router.Use(app.JWTAuthentication)
 
 	logger.Info("register user handlers")
 	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
